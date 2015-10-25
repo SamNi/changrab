@@ -6,12 +6,11 @@ class changrabTest(unittest.TestCase):
         pass
     def tearDown(this):
         pass
-    def test_X(this):
-        raise NotImplementedError 
-    def test_Y(this):
-        raise NotImplementedError 
-    def test_Z(this):
-        raise NotImplementedError 
+    def test_parse_4ch_url(this):
+        url = r'http://boards.4chan.org/fit/thread/17018018/this-link-covers-the-following-topics'
+        expected = ('http://', 'fit', '17018018')
+        actual = cgr.parse_4ch_url(url)
+        this.assertEqual(expected, actual)
 
 if __name__ == '__main__':
     unittest.main()
