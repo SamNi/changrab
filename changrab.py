@@ -3,8 +3,7 @@ from os import path
 import sys
 import json
 import re
-
-from time import sleep
+import time as t
 from urllib.request import urlopen, urlretrieve
 from urllib.parse import urlparse
 
@@ -26,18 +25,25 @@ def get_thread_image_paths(url):
     return board, thread_id, image_paths
 
 def main():
-    inp_url = sys.argv[1]
-    board, thread_id, image_paths = get_thread_image_paths(inp_url)
-    filecount = 0
-    for imgpath in image_paths:
-        localfname = path.basename(urlparse(imgpath)[2])
-        localpath = path.join(os.path.curdir, board, thread_id, localfname)
-        os.makedirs(path.dirname(localpath), exist_ok=True)
-        sys.stdout.write(imgpath + '\t\t')
-        urlretrieve(imgpath, localpath)
-        sys.stdout.write('successful\n')
-        filecount += 1
-    print("Scraped %d image(s)" % filecount)
+    inp_urls = sys.argv[1:]
+    for inp_url in inp_urls:
+        board, thread_id, image_paths = get_thread_image_paths(inp_url)
+        filecount = 0
+
+        before_t = t.clock()
+        for imgpath in image_paths:
+            localfname = path.basename(urlparse(imgpath)[2])
+            localpath = path.join(os.path.curdir, board, thread_id, localfname)
+            os.makedirs(path.dirname(localpath), exist_ok=True)
+            sys.stdout.write(imgpath + '\t\t')
+            urlretrieve(imgpath, localpath)
+            sys.stdout.write('successful\n')
+            filecount += 1
+        after_t = t.clock()
+
+        tdelta = (after_t - before_t)
+        print("Scraped %d image(s) in %f seconds" % (filecount, tdelta))
+        sys.stdout.flush()
 
 if __name__ == '__main__':
     sys.exit(main())
