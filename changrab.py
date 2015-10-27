@@ -26,18 +26,18 @@ def grab_thread_json(board, thread_id, protocol='http'):
     path = r'%s://a.4cdn.org/%s/thread/%s.json' % (protocol, board, thread_id)
     return json.loads( urlopen(path).readall().decode() )
 
-def get_thread_image_paths(url):
-    _, board, thread_id = parse_4ch_url(url)
-    response = grab_thread_json(board, thread_id) 
-    posts = response['posts']
+def get_thread_image_paths(js_obj, board, thread_id):
+    posts = js_obj['posts']
     image_paths = []
     for (fname, fext) in [ (p['tim'], p['ext']) for p in posts if 'filename' in p]:
         filepath = r'http://i.4cdn.org/%s/%s%s' % (board, fname, fext)
         image_paths.append(filepath)
-    return board, thread_id, image_paths
+    return image_paths
 
 def grab_url(url):
-    board, thread_id, image_paths = get_thread_image_paths(url)
+    _, board, thread_id = parse_4ch_url(url)
+    js_obj = grab_thread_json(board, thread_id)
+    image_paths = get_thread_image_paths(js_obj, board, thread_id)
     filecount = 0
 
     before_t = t.clock()
