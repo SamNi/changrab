@@ -4,26 +4,31 @@ import sys
 import json
 import re
 import time as t
+import sqlite3 as sql
+import logging as lg 
+
 from urllib.request import urlopen, urlretrieve
 from urllib.parse import urlparse
 
+db_fname = 'changrab.db'
+
 fourch_url_pat = re.compile(r'(https://|http://)?boards.4chan.org/(\w+)/thread/(\d+)')
+lg.basicConfig(filename='changrab.log', level=lg.DEBUG)
+
+def _init_db(fname = db_fname):
+    if path.exists(path.join(os.curdir, fname)):
+        lg.log(lg.INFO, "%s already exists" % fname)
 
 def parse_4ch_url(url):
-    ret = fourch_url_pat.match(url).groups()
-    return ret
+    return fourch_url_pat.match(url).groups()
 
-def _grab_thread_json(board, thread_id):
-    path = r'http://a.4cdn.org/%s/thread/%s.json' % (board, thread_id)
-    json_response = json.loads( urlopen(path).readall().decode() )
-    return json_response
-
+def grab_thread_json(board, thread_id, protocol='http'):
+    path = r'%s://a.4cdn.org/%s/thread/%s.json' % (protocol, board, thread_id)
+    return json.loads( urlopen(path).readall().decode() )
 
 def get_thread_image_paths(url):
     _, board, thread_id = parse_4ch_url(url)
-    #path = r'http://a.4cdn.org/%s/thread/%s.json' % (board, thread_id)
-    #json_response = json.loads( urlopen(path).readall().decode() )
-    response = _grab_thread_json(board, thread_id) 
+    response = grab_thread_json(board, thread_id) 
     posts = response['posts']
     image_paths = []
     for (fname, fext) in [ (p['tim'], p['ext']) for p in posts if 'filename' in p]:
