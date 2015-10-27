@@ -38,8 +38,14 @@ def grab_url(url):
     _, board, thread_id = parse_4ch_url(url)
     js_obj = grab_thread_json(board, thread_id)
     image_paths = get_thread_image_paths(js_obj, board, thread_id)
-    filecount = 0
 
+    # Archive raw json (may be useful later)
+    arch_dir = path.join(os.curdir, board)
+    arch_fname = '%s.json' % thread_id
+    os.makedirs(path.join(os.curdir, board), exist_ok=True)
+    json.dump(js_obj, open(path.join(arch_dir, arch_fname), "w"))
+
+    filecount = 0
     before_t = t.clock()
     for imgpath in image_paths:
         localfname = path.basename(urlparse(imgpath)[2])
